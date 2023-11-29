@@ -24,17 +24,17 @@ public class SolarWatchController :ControllerBase
     }
 
     [HttpGet("GetInfoToSolarWatch")]
-    public ActionResult<Modell.SolarWatch> Get(DateTime currentDate,string location)
+    public async Task<ActionResult<Modell.SolarWatch>> Get(DateTime currentDate,string location)
     {
         try
         {
-            var locationData = _geocodingDataProvider.GetCurrent(location);
-            var _coordinate = _jsonProcessorToGeocoding.Process(locationData);
+            var locationData = await _geocodingDataProvider.GetCurrent(location);
+            var _coordinate =  _jsonProcessorToGeocoding.Process(locationData);
             try
             {
                 var date = currentDate.ToString("yyyy-MM-dd");
-                var solarWatchData = _solarWatchDataProvider.GetCurrent(_coordinate, date);
-                return Ok(_jsonProcessorToSolarWatch.Process(solarWatchData, date, location));
+                var solarWatchData = await _solarWatchDataProvider.GetCurrent(_coordinate, date);
+                return Ok( _jsonProcessorToSolarWatch.Process(solarWatchData, date, location));
             }
             catch (Exception e)
             {

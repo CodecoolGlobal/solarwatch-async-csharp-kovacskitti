@@ -14,14 +14,15 @@ public class SunsetAndSunriseTimesApi : ISolarWatchDataProvider
         _logger = logger;
     }
     
-    public string GetCurrent(Coordinate coordinate, string date)
+    public async Task<string> GetCurrent(Coordinate coordinate, string date)
     {
       var url = $"https://api.sunrise-sunset.org/json?lat={coordinate.lat}&lng={coordinate.lon}&date={date}";
 
-        var client = new WebClient();
+        var client = new HttpClient();
        
         _logger.LogInformation("Calling OpenWeather API with url: {url}", url);
-        return client.DownloadString(url);
+        var response = await client.GetAsync(url);
+        return await response.Content.ReadAsStringAsync();
     }
 
     

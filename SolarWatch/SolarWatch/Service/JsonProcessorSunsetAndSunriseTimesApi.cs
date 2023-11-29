@@ -7,20 +7,31 @@ public class JsonProcessorSunsetAndSunriseTimesApi : IJsonProcessorToSolarWatch
 {
     public Modell.SolarWatch Process(string data, string date, string location)
     {
-        var json = JsonDocument.Parse(data);
-        var result = json.RootElement.GetProperty("results");
-        Modell.SolarWatch solarWatch = new Modell.SolarWatch()
+        try
         {
-            Date = date,
-            Location = location,
-            Sunset = result.GetProperty("sunset").ToString(),
-            Sunrise = result.GetProperty("sunrise").ToString(),
-        };
-        
+            var json = JsonDocument.Parse(data);
 
-        return solarWatch;
+            if (json.RootElement.TryGetProperty("results", out var result))
+            {
+                Modell.SolarWatch solarWatch = new Modell.SolarWatch()
+                {
+                    Date = date,
+                    Location = location,
+                    Sunset = result.GetProperty("sunset").ToString(),
+                    Sunrise = result.GetProperty("sunrise").ToString(),
+                };
 
+                return solarWatch;
+            }
+            else
+            {
+                throw new JsonException("Invalid JSON structure: Missing 'results' property.");
+            }
+        }
+        catch (JsonException ex)
+        {
+           
+            throw new JsonException("Error processing JSON data.", ex);
+        }
     }
-    
-    
 }
