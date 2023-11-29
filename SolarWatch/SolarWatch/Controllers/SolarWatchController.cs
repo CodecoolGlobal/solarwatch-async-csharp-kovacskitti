@@ -47,7 +47,5 @@ public class SolarWatchController :ControllerBase
             _logger.LogError(e, "Error getting location data");
             return NotFound("Error getting location data");
         }
-        
-        
     }
 }
