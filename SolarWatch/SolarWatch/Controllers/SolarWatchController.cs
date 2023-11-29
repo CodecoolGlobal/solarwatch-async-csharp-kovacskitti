@@ -1,32 +1,53 @@
 using Microsoft.AspNetCore.Mvc;
+using SolarWatch.Service;
 
 namespace SolarWatch.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class SolarWatchController : ControllerBase
+public class SolarWatchController :ControllerBase
 {
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
     private readonly ILogger<SolarWatchController> _logger;
+    private readonly IJsonProcessorToSolarWatch _jsonProcessorToSolarWatch;
+    private readonly ISolarWatchDataProvider _solarWatchDataProvider;
+    private readonly IJsonProcessorToGeocoding _jsonProcessorToGeocoding;
+    private readonly IGeocodingDataProvider _geocodingDataProvider;
 
-    public SolarWatchController(ILogger<SolarWatchController> logger)
+    public SolarWatchController(ILogger<SolarWatchController> logger, ISolarWatchDataProvider solarWatchDataProvider,
+        IJsonProcessorToSolarWatch jsonProcessorToSolarWatch, IGeocodingDataProvider geocodingDataProvider,IJsonProcessorToGeocoding jsonProcessorToGeocoding)
     {
         _logger = logger;
+        _solarWatchDataProvider = solarWatchDataProvider;
+        _jsonProcessorToSolarWatch = jsonProcessorToSolarWatch;
+        _geocodingDataProvider = geocodingDataProvider;
+        _jsonProcessorToGeocoding = jsonProcessorToGeocoding;
     }
 
-    [HttpGet(Name = "GetWeatherForecast")]
-    public IEnumerable<WeatherForecast> Get()
+    [HttpGet("GetInfoToSolarWatch")]
+    public ActionResult<Modell.SolarWatch> Get(DateTime currentDate,string location)
     {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        try
+        {
+            var locationData = _geocodingDataProvider.GetCurrent(location);
+            var _coordinate = _jsonProcessorToGeocoding.Process(locationData);
+            try
             {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+                var date = currentDate.ToString("yyyy-MM-dd");
+                var solarWatchData = _solarWatchDataProvider.GetCurrent(_coordinate, date);
+                return Ok(_jsonProcessorToSolarWatch.Process(solarWatchData, date, location));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error getting solar watch data");
+                return NotFound("Error getting solar watch data");
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error getting location data");
+            return NotFound("Error getting location data");
+        }
+        
+        
     }
 }
