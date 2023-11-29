@@ -1,6 +1,8 @@
+using SolarWatch.Model;
+
 namespace SolarWatch.Service;
 
 public interface IJsonProcessorToGeocoding
 {
-    Dictionary<string, float> Process(string data);
+    Coordinate Process(string data);
 }
