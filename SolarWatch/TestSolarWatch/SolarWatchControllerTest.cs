@@ -24,38 +24,49 @@ public class SolarWatchControllerTest
     public void SetUp()
     {
         _loggerMock = new Mock<ILogger<SolarWatchController>>();
-        _geocodingDataProviderMock = new Mock<IGeocodingDataProvider>();
+        _jsonProcessorToSolarWatchMock = new Mock<IJsonProcessorToSolarWatch>();
         _solarWatchDataProviderMock = new Mock<ISolarWatchDataProvider>();
-        var _jsonProcessorToGeocoding = new JsonProcessorGeocodingApi();
-        var _jsonProcessorToSolarWatchMock = new JsonProcessorSunsetAndSunriseTimesApi();
-        _controller =
-            new SolarWatchController(_loggerMock.Object, _solarWatchDataProviderMock.Object,
-                _jsonProcessorToSolarWatchMock,
-                _geocodingDataProviderMock.Object,_jsonProcessorToGeocoding);
+        _jsonProcessorToGeocodingMock = new Mock<IJsonProcessorToGeocoding>();
+        _geocodingDataProviderMock = new Mock<IGeocodingDataProvider>();
+
+        _controller = new SolarWatchController(
+            _loggerMock.Object,
+            _solarWatchDataProviderMock.Object,
+            _jsonProcessorToSolarWatchMock.Object,
+            _geocodingDataProviderMock.Object,
+            _jsonProcessorToGeocodingMock.Object
+        );
+
     }
 
     [Test]
-    public void Get_ValidRequest_ReturnsOkResult()
+    public async Task Get_ValidRequest_ReturnsOkResult()
     {
-        var date = new DateTime(2023,01,01);
+        var currentDate = new DateTime(2023, 01, 01);
         var location = "Budapest";
-       
-        //_jsonProcessorToGeocodingMock.Setup(x => x.Process(It.IsAny<string>()))
-          //  .Returns(new Dictionary<string, float>());
+        var geocodingResult = "{}";
+        var coordinateResult = new Coordinate();
+        var solarWatchResult = "{}";
+        var solarWatchObjectResult =  new global::SolarWatch.Modell.SolarWatch(); // Modify this based on the actual SolarWatch model
 
-        _solarWatchDataProviderMock.Setup(x => x.GetCurrent(It.IsAny<Coordinate>(), date.ToString()))
-            .Returns(File.ReadAllText("sunrise_sunset_Budapest_20230101.json"));
+        _geocodingDataProviderMock.Setup(x => x.GetCurrent(location)).ReturnsAsync(geocodingResult);
+        _jsonProcessorToGeocodingMock.Setup(x => x.Process(geocodingResult)).Returns(coordinateResult);
+        _solarWatchDataProviderMock.Setup(x => x.GetCurrent(coordinateResult, currentDate.ToString("yyyy-MM-dd"))).ReturnsAsync(solarWatchResult);
+        _jsonProcessorToSolarWatchMock.Setup(x => x.Process(solarWatchResult, currentDate.ToString("yyyy-MM-dd"), location)).Returns(solarWatchObjectResult);
 
-       // _jsonProcessorToSolarWatchMock.Setup(x => x.Process(It.IsAny<string>(), date.ToString(), location))
-         //   .Returns(new global::SolarWatch.Modell.SolarWatch());
+        // Act
+        var result = _controller.Get(currentDate, location);
 
-        var result = _controller.Get(date, location);
-
+        // Assert
         Assert.IsNotNull(result);
-        Console.WriteLine(result.Result);
-        Assert.IsInstanceOf(typeof(OkObjectResult), result.Result);
-
+        Assert.IsInstanceOf<OkObjectResult>(result.Result);
+        var okObjectResult = result.Result;
+        Assert.IsNotNull(okObjectResult.Value);
+        Assert.IsInstanceOf<global::SolarWatch.Modell.SolarWatch>(okObjectResult.Value);
+        Assert.AreEqual(solarWatchObjectResult, okObjectResult.Value);
     }
+
+    
     [Test]
     public void Get_InvalidRequest_ReturnsFault()
     {
