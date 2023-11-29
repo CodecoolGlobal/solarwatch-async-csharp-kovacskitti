@@ -1,0 +1,8 @@
+using SolarWatch.Model;
+
+namespace SolarWatch.Service;
+
+public interface ISolarWatchDataProvider
+{
+    Task<string> GetCurrent(Coordinate coordinate, string date);
+}
