@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using SolarWatch.Model;
 using SolarWatch.Modell;
 
 namespace SolarWatch.Service;

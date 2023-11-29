@@ -1,4 +1,5 @@
 using System.Net;
+using SolarWatch.Model;
 using SolarWatch.Modell;
 
 namespace SolarWatch.Service;
