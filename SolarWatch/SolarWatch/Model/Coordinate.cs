@@ -1,4 +1,4 @@
-namespace SolarWatch.Modell;
+namespace SolarWatch.Model;
 
 public record Coordinate()
 {

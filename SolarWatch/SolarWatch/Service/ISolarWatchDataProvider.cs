@@ -1,6 +1,8 @@
+using SolarWatch.Model;
+
 namespace SolarWatch.Service;
 
 public interface ISolarWatchDataProvider
 {
-    string GetCurrent(Dictionary<string, float> locationDictionary, string date);
+    string GetCurrent(Coordinate coordinate, string date);
 }
