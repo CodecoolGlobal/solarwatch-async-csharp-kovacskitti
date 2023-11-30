@@ -15,7 +15,7 @@ jobs:
   build:
     defaults:
       run:
-        working-directory: .\SolarWatch
+        working-directory: ./SolarWatch
     runs-on: ubuntu-latest
 
     steps:
