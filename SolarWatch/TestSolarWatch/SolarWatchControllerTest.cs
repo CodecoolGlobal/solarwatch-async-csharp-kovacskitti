@@ -45,10 +45,10 @@ public class SolarWatchControllerTest
         var currentDate = new DateTime(2023, 01, 01);
         var location = "Budapest";
         var geocodingResult = "{}";
-        var coordinateResult = new Coordinate();
+        var coordinateResult = new Coordinate(){47.4979937,19.0403594};
         var solarWatchResult = "{}";
-        var solarWatchObjectResult =  new global::SolarWatch.Modell.SolarWatch(); // Modify this based on the actual SolarWatch model
-
+        var solarWatchObjectResult =  new global::SolarWatch.Modell.SolarWatch(){currentDate,location,coordinateResult.lat,coordinateResult.lon}; 
+        
         _geocodingDataProviderMock.Setup(x => x.GetCurrent(location)).ReturnsAsync(geocodingResult);
         _jsonProcessorToGeocodingMock.Setup(x => x.Process(geocodingResult)).Returns(coordinateResult);
         _solarWatchDataProviderMock.Setup(x => x.GetCurrent(coordinateResult, currentDate.ToString("yyyy-MM-dd"))).ReturnsAsync(solarWatchResult);
@@ -59,8 +59,9 @@ public class SolarWatchControllerTest
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.IsInstanceOf<OkObjectResult>(result.Result);
+        Assert.IsInstanceOf<ActionResult<global::SolarWatch.Modell.SolarWatch>>(result.Result);
         var okObjectResult = result.Result;
+        Console.WriteLine(okObjectResult.Value.Location);
         Assert.IsNotNull(okObjectResult.Value);
         Assert.IsInstanceOf<global::SolarWatch.Modell.SolarWatch>(okObjectResult.Value);
         Assert.AreEqual(solarWatchObjectResult, okObjectResult.Value);

@@ -1,7 +1,13 @@
 namespace SolarWatch.Model;
 
-public record Coordinate()
+public class Coordinate
 {
-    public float lat;
-    public float lon;
+    public float Lat;
+    public float Lon;
+
+    public Coordinate(float lat, float lon)
+    {
+        Lat = lat;
+        Lon = lon;
+    }
 }
