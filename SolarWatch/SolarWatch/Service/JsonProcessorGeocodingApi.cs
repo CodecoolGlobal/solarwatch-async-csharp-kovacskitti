@@ -16,9 +16,7 @@ public class JsonProcessorGeocodingApi:IJsonProcessorToGeocoding
         var lon = firstElement.GetProperty("lon");
         lat.TryGetSingle(out float latFloat);
         lon.TryGetSingle(out float lonFloat);
-        var currentCoordinate = new Coordinate() {};
-        currentCoordinate.lat = latFloat;
-        currentCoordinate.lon = lonFloat;
+        var currentCoordinate = new Coordinate(latFloat,lonFloat) {};
         return currentCoordinate;
     }
     
