@@ -13,13 +13,8 @@ public class JsonProcessorSunsetAndSunriseTimesApi : IJsonProcessorToSolarWatch
 
             if (json.RootElement.TryGetProperty("results", out var result))
             {
-                Modell.SolarWatch solarWatch = new Modell.SolarWatch()
-                {
-                    Date = date,
-                    Location = location,
-                    Sunset = result.GetProperty("sunset").ToString(),
-                    Sunrise = result.GetProperty("sunrise").ToString(),
-                };
+                Modell.SolarWatch solarWatch = new Modell.SolarWatch(location, date,
+                    result.GetProperty("sunrise").ToString(), result.GetProperty("sunset").ToString());
 
                 return solarWatch;
             }

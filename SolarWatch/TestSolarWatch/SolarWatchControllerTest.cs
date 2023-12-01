@@ -42,12 +42,12 @@ public class SolarWatchControllerTest
     [Test]
     public async Task Get_ValidRequest_ReturnsOkResult()
     {
-        var currentDate = new DateTime(2023, 01, 01);
+        var currentDate = "2023-01-01";
         var location = "Budapest";
         var geocodingResult = "{}";
-        var coordinateResult = new Coordinate(){47.4979937,19.0403594};
+        var coordinateResult = new Coordinate((float)47.4979937,(float)19.0403594);
         var solarWatchResult = "{}";
-        var solarWatchObjectResult =  new global::SolarWatch.Modell.SolarWatch(){currentDate,location,coordinateResult.lat,coordinateResult.lon}; 
+        var solarWatchObjectResult =  new global::SolarWatch.Modell.SolarWatch(currentDate,location,); 
         
         _geocodingDataProviderMock.Setup(x => x.GetCurrent(location)).ReturnsAsync(geocodingResult);
         _jsonProcessorToGeocodingMock.Setup(x => x.Process(geocodingResult)).Returns(coordinateResult);
