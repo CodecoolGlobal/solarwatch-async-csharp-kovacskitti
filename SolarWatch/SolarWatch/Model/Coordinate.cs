@@ -1,9 +1,17 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace SolarWatch.Model;
 
+[Owned]
 public class Coordinate
-{
-    public float Lat;
-    public float Lon;
+{       
+    public int Id { get; set; } 
+    public float Lat { get; set; }
+    public float Lon { get; set; }
+    public Coordinate()
+    {
+        
+    }
 
     public Coordinate(float lat, float lon)
     {

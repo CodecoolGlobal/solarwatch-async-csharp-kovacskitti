@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SolarWatch.Service;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,10 @@ builder.Services.AddSingleton<ISolarWatchDataProvider, SunsetAndSunriseTimesApi>
 builder.Services.AddSingleton<IJsonProcessorToSolarWatch, JsonProcessorSunsetAndSunriseTimesApi>();
 builder.Services.AddSingleton<IGeocodingDataProvider, GeocodingApi>();
 builder.Services.AddSingleton<IJsonProcessorToGeocoding, JsonProcessorGeocodingApi>();
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 
 var app = builder.Build();
 

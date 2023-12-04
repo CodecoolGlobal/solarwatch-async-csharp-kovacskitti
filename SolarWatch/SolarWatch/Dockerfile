@@ -10,6 +10,12 @@ COPY . ./
 RUN dotnet restore
 RUN dotnet publish -c Release -o out
 
+# Install dotnet-ef globally
+RUN dotnet tool install --global dotnet-ef --version 7.0.0
+
+#Migration
+CMD ["dotnet", "ef", "database", "update", "--project", "YourDbContextProjectName"]
+
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /app
