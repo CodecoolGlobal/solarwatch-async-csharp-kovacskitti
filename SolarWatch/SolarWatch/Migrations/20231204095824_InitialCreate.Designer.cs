@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SolarWatch.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20231204091854_InitialCreate")]
+    [Migration("20231204095824_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
