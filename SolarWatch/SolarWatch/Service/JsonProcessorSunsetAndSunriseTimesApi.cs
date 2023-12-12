@@ -1,11 +1,12 @@
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using SolarWatch.Model;
 
 namespace SolarWatch.Service;
 
 public class JsonProcessorSunsetAndSunriseTimesApi : IJsonProcessorToSolarWatch
 {
-    public Modell.SolarWatch Process(string data, string date, string location)
+    public Modell.SolarWatch Process(string data, string date, City city)
     {
         try
         {
@@ -13,7 +14,7 @@ public class JsonProcessorSunsetAndSunriseTimesApi : IJsonProcessorToSolarWatch
 
             if (json.RootElement.TryGetProperty("results", out var result))
             {
-                Modell.SolarWatch solarWatch = new Modell.SolarWatch(location, date,
+                Modell.SolarWatch solarWatch = new Modell.SolarWatch(city, date,
                     result.GetProperty("sunrise").ToString(), result.GetProperty("sunset").ToString());
 
                 return solarWatch;
