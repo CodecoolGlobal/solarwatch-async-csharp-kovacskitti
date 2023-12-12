@@ -4,5 +4,5 @@ namespace SolarWatch.Service;
 
 public interface IJsonProcessorToGeocoding
 {
-    Coordinate Process(string data);
+    City Process(string data);
 }
