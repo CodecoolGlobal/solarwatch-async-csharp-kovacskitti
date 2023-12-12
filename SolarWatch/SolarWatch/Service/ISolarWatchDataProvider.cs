@@ -4,5 +4,5 @@ namespace SolarWatch.Service;
 
 public interface ISolarWatchDataProvider
 {
-    Task<string> GetCurrent(Coordinate coordinate, string date);
+    Task<string> GetCurrent(City city, string date);
 }
