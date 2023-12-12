@@ -14,9 +14,9 @@ public class SunsetAndSunriseTimesApi : ISolarWatchDataProvider
         _logger = logger;
     }
     
-    public async Task<string> GetCurrent(Coordinate coordinate, string date)
+    public async Task<string> GetCurrent(City city, string date)
     {
-      var url = $"https://api.sunrise-sunset.org/json?lat={coordinate.Lat}&lng={coordinate.Lon}&date={date}";
+      var url = $"https://api.sunrise-sunset.org/json?lat={city.Coordinate.Lat}&lng={city.Coordinate.Lon}&date={date}";
 
         var client = new HttpClient();
        
