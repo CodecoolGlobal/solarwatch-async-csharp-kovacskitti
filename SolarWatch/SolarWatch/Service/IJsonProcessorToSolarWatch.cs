@@ -1,6 +1,8 @@
+using SolarWatch.Model;
+
 namespace SolarWatch.Service;
 
 public interface IJsonProcessorToSolarWatch
 {
-    Modell.SolarWatch Process(string data, string date, string location);
+    Modell.SolarWatch Process(string data, string date, City city);
 }
