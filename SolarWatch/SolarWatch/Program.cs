@@ -9,10 +9,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<ISolarWatchDataProvider, SunsetAndSunriseTimesApi>();
-builder.Services.AddSingleton<IJsonProcessorToSolarWatch, JsonProcessorSunsetAndSunriseTimesApi>();
-builder.Services.AddSingleton<IGeocodingDataProvider, GeocodingApi>();
-builder.Services.AddSingleton<IJsonProcessorToGeocoding, JsonProcessorGeocodingApi>();
+builder.Services.AddScoped<ISolarWatchDataProvider, SunsetAndSunriseTimesApi>();
+builder.Services.AddScoped<IJsonProcessorToSolarWatch, JsonProcessorSunsetAndSunriseTimesApi>();
+builder.Services.AddScoped<IGeocodingDataProvider, GeocodingApi>();
+builder.Services.AddScoped<IJsonProcessorToGeocoding, JsonProcessorGeocodingApi>();
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
