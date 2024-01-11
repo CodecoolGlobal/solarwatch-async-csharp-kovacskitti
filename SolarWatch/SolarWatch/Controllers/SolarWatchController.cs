@@ -8,7 +8,7 @@ namespace SolarWatch.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class SolarWatchController :ControllerBase
+public class SolarWatchController : ControllerBase
 {
     private readonly ILogger<SolarWatchController> _logger;
     private readonly IJsonProcessorToSolarWatch _jsonProcessorToSolarWatch;
@@ -18,7 +18,8 @@ public class SolarWatchController :ControllerBase
     private readonly AppDbContext _dbContext;
 
     public SolarWatchController(ILogger<SolarWatchController> logger, ISolarWatchDataProvider solarWatchDataProvider,
-        IJsonProcessorToSolarWatch jsonProcessorToSolarWatch, IGeocodingDataProvider geocodingDataProvider,IJsonProcessorToGeocoding jsonProcessorToGeocoding, AppDbContext dbContext)
+        IJsonProcessorToSolarWatch jsonProcessorToSolarWatch, IGeocodingDataProvider geocodingDataProvider,
+        IJsonProcessorToGeocoding jsonProcessorToGeocoding, AppDbContext dbContext)
     {
         _logger = logger;
         _solarWatchDataProvider = solarWatchDataProvider;
@@ -27,9 +28,10 @@ public class SolarWatchController :ControllerBase
         _jsonProcessorToGeocoding = jsonProcessorToGeocoding;
         _dbContext = dbContext;
     }
-    [Authorize (Roles= "User,Admin")]
+
+    [Authorize(Roles = "User,Admin")]
     [HttpGet("GetInfoToSolarWatch")]
-    public async Task<ActionResult<Modell.SolarWatch>> Get(DateTime currentDate,string location)
+    public async Task<ActionResult<Modell.SolarWatch>> Get(DateTime currentDate, string location)
     {
         try
         {
@@ -39,9 +41,10 @@ public class SolarWatchController :ControllerBase
             {
                 _dbContext.Entry(resultByLocation).Reference(city => city.Coordinate).Load();
             }
+
             //Console.WriteLine(resultByLocation.Coordinate.Lat);
             var _city = new City();
-            
+
             if (resultByLocation == null)
             {
                 var locationData = await _geocodingDataProvider.GetCurrent(location);
@@ -60,7 +63,7 @@ public class SolarWatchController :ControllerBase
                     return NotFound("Error getting solar watch data");
                 }
             }
-            else if(resultByLocation.GetType()==typeof(City))
+            else if (resultByLocation.GetType() == typeof(City))
             {
                 _city = resultByLocation;
                 Console.WriteLine(resultByLocation.Coordinate.Lat);
@@ -86,8 +89,8 @@ public class SolarWatchController :ControllerBase
 
         return null;
     }
-    
-    [Authorize (Roles= "Admin")]
+
+    [Authorize(Roles = "Admin")]
     [HttpDelete("DeleteInfoToSolarWatch")]
     public async Task<ActionResult<Modell.SolarWatch>> Delete(string location)
     {
@@ -96,7 +99,7 @@ public class SolarWatchController :ControllerBase
             var resultByLocation = _dbContext.Cities.FirstOrDefault(city => city.Name == location);
             if (resultByLocation != null)
             {
-            Console.WriteLine(resultByLocation.Id);
+                Console.WriteLine(resultByLocation.Id);
                 _dbContext.Remove(resultByLocation);
                 _dbContext.SaveChanges();
                 return Ok($"{location} deleted from the database");
@@ -106,10 +109,64 @@ public class SolarWatchController :ControllerBase
         catch (Exception e)
         {
             _logger.LogError(e, $"{location} is not found in the database");
-        return NotFound($"{location} is not found in the database");
+            return NotFound($"{location} is not found in the database");
         }
+
         return NotFound($"{location} is not found in the database");
     }
-    
-    
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("PostCityToDB")]
+    public async Task<ActionResult<Modell.SolarWatch>> Post(string name, float lat, float lon, string state,
+        string country)
+    {
+        try
+        {
+            var _coordinate = new Coordinate(lat, lon);
+            var _city = new City(name, _coordinate, state, country);
+            _dbContext.Add(_city);
+            _dbContext.SaveChanges();
+            return Ok($"{name} added to the database");
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"Error adding {name} to the database: {e.Message}");
+            return NotFound($"Error adding {name} to the database: {e.Message}");
+        }
+
+    }
+
+
+    [Authorize(Roles = "Admin")]
+    [HttpPatch("PatchCityInDB")]
+    public async Task<ActionResult<Modell.SolarWatch>> Update(string name, float lat, float lon, string state,
+        string country)
+    {
+        try
+        {
+            var resultByLocation = _dbContext.Cities.FirstOrDefault(city => city.Name == name);
+            if (resultByLocation != null)
+            {
+                /*var _coordinate = new Coordinate(lat, lon);
+                var _city = new City(name, _coordinate, state, country);
+                _dbContext.Update(_city);*/
+
+
+                resultByLocation.Name = name;
+                resultByLocation.Coordinate = new Coordinate(lat, lon);
+                resultByLocation.State = state;
+                resultByLocation.Country = country;
+
+                _dbContext.SaveChanges();
+                return Ok($"{name} updated in the database");
+            }
+
+            return NotFound($"City with name {name} not found in the database");
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"Error updating {name} in the database: {e.Message}");
+            return StatusCode(500, $"Error updating {name} in the database: {e.Message}");
+        }
+    }
 }
