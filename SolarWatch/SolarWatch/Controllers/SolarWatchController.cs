@@ -27,7 +27,7 @@ public class SolarWatchController :ControllerBase
         _jsonProcessorToGeocoding = jsonProcessorToGeocoding;
         _dbContext = dbContext;
     }
-    [Authorize (Roles= "User")]
+    [Authorize (Roles= "User,Admin")]
     [HttpGet("GetInfoToSolarWatch")]
     public async Task<ActionResult<Modell.SolarWatch>> Get(DateTime currentDate,string location)
     {
@@ -86,4 +86,30 @@ public class SolarWatchController :ControllerBase
 
         return null;
     }
+    
+    [Authorize (Roles= "Admin")]
+    [HttpDelete("DeleteInfoToSolarWatch")]
+    public async Task<ActionResult<Modell.SolarWatch>> Delete(string location)
+    {
+        try
+        {
+            var resultByLocation = _dbContext.Cities.FirstOrDefault(city => city.Name == location);
+            if (resultByLocation != null)
+            {
+            Console.WriteLine(resultByLocation.Id);
+                _dbContext.Remove(resultByLocation);
+                _dbContext.SaveChanges();
+                return Ok($"{location} deleted from the database");
+            }
+            //Console.WriteLine(resultByLocation.Coordinate.Lat);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"{location} is not found in the database");
+        return NotFound($"{location} is not found in the database");
+        }
+        return NotFound($"{location} is not found in the database");
+    }
+    
+    
 }
