@@ -1,4 +1,5 @@
 using System.Data.Entity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SolarWatch.Model;
 using SolarWatch.Service;
@@ -26,7 +27,7 @@ public class SolarWatchController :ControllerBase
         _jsonProcessorToGeocoding = jsonProcessorToGeocoding;
         _dbContext = dbContext;
     }
-
+    [Authorize (Roles= "User")]
     [HttpGet("GetInfoToSolarWatch")]
     public async Task<ActionResult<Modell.SolarWatch>> Get(DateTime currentDate,string location)
     {
@@ -38,7 +39,7 @@ public class SolarWatchController :ControllerBase
             {
                 _dbContext.Entry(resultByLocation).Reference(city => city.Coordinate).Load();
             }
-            Console.WriteLine(resultByLocation.Coordinate.Lat);
+            //Console.WriteLine(resultByLocation.Coordinate.Lat);
             var _city = new City();
             
             if (resultByLocation == null)
