@@ -34,7 +34,7 @@ const Login = () => {
       console.log("User Token:", data.token);
 
       localStorage.setItem("accessToken", data.token);
-     // navigate("/profile");
+      navigate("/solarwatch");
     } catch (error) {
       console.error("Error during login:", error);
     }
