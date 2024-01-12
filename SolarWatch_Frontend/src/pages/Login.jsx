@@ -15,7 +15,7 @@ const Login = () => {
     };
 
     try {
-      const response = await fetch("/api/Auth/Login", {
+      const response = await fetch("http://localhost:5186/Auth/Login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -34,7 +34,7 @@ const Login = () => {
       console.log("User Token:", data.token);
 
       localStorage.setItem("accessToken", data.token);
-      navigate("/profile");
+     // navigate("/profile");
     } catch (error) {
       console.error("Error during login:", error);
     }
