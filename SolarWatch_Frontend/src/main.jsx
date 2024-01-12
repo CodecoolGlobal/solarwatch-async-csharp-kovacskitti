@@ -7,6 +7,7 @@ import Layout from "./pages/Layout";
 import ErrorPage from "./pages/ErrorPage";
 import Registration from "./pages/Registration";
 import Login from "./pages/Login";
+import SolarWatch from './pages/SolarWatch.jsx';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <Login />,
+      },
+      {
+        path: "/solarwatch",
+        element: <SolarWatch />,
       },
     ],
   },
