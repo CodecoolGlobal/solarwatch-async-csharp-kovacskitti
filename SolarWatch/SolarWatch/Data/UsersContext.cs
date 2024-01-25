@@ -13,7 +13,7 @@ public class UsersContext : IdentityDbContext<IdentityUser, IdentityRole, string
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        options.UseSqlServer("Server=localhost, 1433; Database=solarwatchdocker;User Id=SA;Password=Codecool2024;TrustServerCertificate=true;");
+        options.UseSqlServer("Server=localhost, 1433; Database=solarwatchdocker;User Id=SA;Password=Codecool_2023;TrustServerCertificate=true;");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
