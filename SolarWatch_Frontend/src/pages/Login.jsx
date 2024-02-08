@@ -30,10 +30,12 @@ const Login = () => {
 
       const data = await response.json();
       console.log("Login successful");
-      console.log("User Email:", data.email);
+      console.log("User Email:", data);
       console.log("User Token:", data.token);
 
       localStorage.setItem("accessToken", data.token);
+      localStorage.setItem("userEmail", data.email);
+      localStorage.setItem("userName", data.userName);
       navigate("/solarwatch");
     } catch (error) {
       console.error("Error during login:", error);
