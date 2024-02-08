@@ -2,9 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-
 
   return (
     <div className="profile-container">
