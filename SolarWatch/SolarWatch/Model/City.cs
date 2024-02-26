@@ -7,7 +7,7 @@ public class City
     public Coordinate Coordinate { set; get; }
     public string? State { set; get; }
     public string Country { set; get; }
-
+    public ICollection<UserCity> UserCities { get; set; }
     public City()
     {}
     
