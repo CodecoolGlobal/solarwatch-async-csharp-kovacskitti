@@ -78,32 +78,30 @@ public class AuthController : ControllerBase
     }
     
     [Authorize(Roles = "User,Admin")]
-    [HttpPatch("AddNewCityToUserList")]
-    public async Task<ActionResult<Modell.SolarWatch>> AddNewCityToUserList(string location, string id)
+    [HttpPatch("AddFavouriteCity")]
+    public async Task<ActionResult<Modell.SolarWatch>> AddFavouriteCity([FromBody] FavouriteCityRequest request)
     {
         try
         {
-            var resultByLocation = _dbContext.Cities.FirstOrDefault(city => city.Name == location);
+            var currentUser = _dbContext.Users.FirstOrDefault((user => user.Email == request.UserEmail));
+            var resultByLocation = _dbContext.Cities.FirstOrDefault(city => city.Name == request.Location);
             Console.WriteLine(resultByLocation);
             var _city = new City();
             if (resultByLocation == null)
             {
-                var locationData = await _geocodingDataProvider.GetCurrent(location);
+                var locationData = await _geocodingDataProvider.GetCurrent(request.Location);
                 _city = _jsonProcessorToGeocoding.Process(locationData);
-                _dbContext.UserCities.Add(new UserCity { UserId = id, CityId = _city.Id });
+                _dbContext.UserCities.Add(new UserCity { UserId = currentUser.Id, CityId = _city.Id });
             }
 
-            Console.WriteLine(id);
-            var currentUser = _dbContext.Users.FirstOrDefault(user => user.Id == id);
-            Console.WriteLine(currentUser.UserName);
-            if (currentUser == null)
+           if (currentUser == null)
             {
                 return BadRequest("The user is not in database.");
             }
 
             if (resultByLocation != null)
             {
-                _dbContext.UserCities.Add(new UserCity { UserId = id, CityId = resultByLocation.Id });
+                _dbContext.UserCities.Add(new UserCity { UserId = currentUser.Id, CityId = resultByLocation.Id });
             }
         
 
