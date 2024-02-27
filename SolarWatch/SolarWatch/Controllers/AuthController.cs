@@ -1,6 +1,11 @@
+using System.Data.Entity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SolarWatch.Service;
 using SolarWatch.Contracts;
+using SolarWatch.Data;
+using SolarWatch.Model;
+
 namespace SolarWatch.Controllers;
 
 [ApiController]
@@ -8,10 +13,22 @@ namespace SolarWatch.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly ILogger<SolarWatchController> _logger;
+    private readonly IJsonProcessorToGeocoding _jsonProcessorToGeocoding;
+    private readonly IGeocodingDataProvider _geocodingDataProvider;
+    private readonly AppDbContext _dbContext;
+    private readonly UsersContext _usersContext;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, ILogger<SolarWatchController> logger,
+        AppDbContext dbContext, UsersContext usersContext, IGeocodingDataProvider geocodingDataProvider
+        ,IJsonProcessorToGeocoding jsonProcessorToGeocoding)
     {
         _authService = authService;
+        _logger = logger;
+        _dbContext = dbContext;
+        _usersContext = usersContext;
+        _geocodingDataProvider = geocodingDataProvider;
+        _jsonProcessorToGeocoding = jsonProcessorToGeocoding;
     }
 
     [HttpPost("Register")]
@@ -58,6 +75,51 @@ public class AuthController : ControllerBase
         }
 
         return Ok(new AuthResponse(result.Email, result.UserName, result.Token));
+    }
+    
+    [Authorize(Roles = "User,Admin")]
+    [HttpPatch("AddNewCityToUserList")]
+    public async Task<ActionResult<Modell.SolarWatch>> AddNewCityToUserList(string location, string id)
+    {
+        try
+        {
+            var resultByLocation = _dbContext.Cities.FirstOrDefault(city => city.Name == location);
+            Console.WriteLine(resultByLocation);
+            var _city = new City();
+            if (resultByLocation == null)
+            {
+                var locationData = await _geocodingDataProvider.GetCurrent(location);
+                _city = _jsonProcessorToGeocoding.Process(locationData);
+                _dbContext.UserCities.Add(new UserCity { UserId = id, CityId = _city.Id });
+            }
+
+            Console.WriteLine(id);
+            var currentUser = _dbContext.Users.FirstOrDefault(user => user.Id == id);
+            Console.WriteLine(currentUser.UserName);
+            if (currentUser == null)
+            {
+                return BadRequest("The user is not in database.");
+            }
+
+            if (resultByLocation != null)
+            {
+                _dbContext.UserCities.Add(new UserCity { UserId = id, CityId = resultByLocation.Id });
+            }
+        
+
+            await _dbContext.SaveChangesAsync();
+            //await _usersContext.SaveChangesAsync();
+
+            return Ok("The city has been successfully added to the user's favorite cities.");
+
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error getting location data");
+            return NotFound("Error getting location data");
+        }
+
+        return null;
     }
 
 }
