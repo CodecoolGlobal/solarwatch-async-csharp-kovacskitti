@@ -34,8 +34,6 @@ public class JsonProcessorGeocodingApi:IJsonProcessorToGeocoding
         };
         
         _dbContext.Cities.Add(currentCity);
-        Console.WriteLine(currentCity.State);
-        Console.WriteLine(firstCityData.State);
         _dbContext.SaveChanges();
         return currentCity;
     }
