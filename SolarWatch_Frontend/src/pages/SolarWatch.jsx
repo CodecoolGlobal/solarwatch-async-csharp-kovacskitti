@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import  Chart from "chart.js/auto";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
 
 const SolarWatch = () => {
   const [city, setCity] = useState("");
@@ -8,12 +10,12 @@ const SolarWatch = () => {
   const [solarWatchData, setSolarWatchData] = useState("");
   const [chartData, setChartData] = useState(null);
   const [chartInstance, setChartInstance] = useState(null);
+  const [favourite, setFavourite] = useState("");
+
   const navigate = useNavigate();
 
   const handleSolarwatch = async (e) => {
     e.preventDefault();
-
-
     try {
       const response = await fetch(
         `http://localhost:5186/SolarWatch/GetInfoToSolarWatch?currentDate=${date}&location=${city}`,
@@ -101,6 +103,25 @@ const SolarWatch = () => {
     }
   };
 
+  const addFavourite = async () => {
+      setFavourite(city);
+      console.log(city)
+      const response = await fetch("http://localhost:5186/Auth/AddFavouriteCity", {
+      method: "PATCH",
+      headers:{
+      "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+      body: JSON.stringify({
+        Location: city,
+        UserEmail: localStorage.getItem("userEmail"),
+      })
+      }
+      )
+    }
+  
+  
+
   useEffect(() => {
     if (chartData) {
       const newChartInstance = new Chart(
@@ -178,6 +199,9 @@ const SolarWatch = () => {
             onChange={(e) => setCity(e.target.value)}
             required
           />
+          <button>
+            <FontAwesomeIcon icon={faHeart} onClick={addFavourite} />
+          </button>
         </label>
         <label>
           Date:
