@@ -46,7 +46,7 @@ const Profile = () => {
       <h2>Profile</h2>
       <p>Username: {localStorage.userName}</p>
       <p>email: {localStorage.userEmail}</p>
-      <ul>
+      <ul>favourite city / cities:
         {profile.map((city)=>
         <li>
           {city}
