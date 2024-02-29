@@ -9,6 +9,9 @@ const LandingPage = ({ children }) => {
       <nav className="nav-container">
         <ul className="nav-list">
           <li>
+            <Link to="/solarwatch">Solarwatch</Link>
+          </li>
+          <li>
             <Link to="/login">Login</Link>
           </li>
           <li>
@@ -19,7 +22,7 @@ const LandingPage = ({ children }) => {
           </li>
         </ul>
       </nav>
-     <Outlet />
+      <Outlet />
     </div>
   );
 };
