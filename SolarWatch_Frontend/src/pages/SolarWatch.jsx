@@ -11,6 +11,84 @@ const SolarWatch = () => {
   const [chartData, setChartData] = useState(null);
   const [chartInstance, setChartInstance] = useState(null);
   const [favourite, setFavourite] = useState("");
+  const [profile, setProfile] = useState([]);
+  const [location, setLocation] = useState("");
+
+  const email = localStorage.getItem("userEmail");
+
+  const APIkey = "8c4342c0a59c4611957d1347bb011688";
+  console.log(email);
+
+  useEffect(() => {
+    const getLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            console.log(longitude);
+            try {
+              const response = await fetch(
+                `https://api.opencagedata.com/geocode/v1/json?key=${APIkey}&q=${latitude}+${longitude}&language=en&pretty=1`
+              );
+              const data = await response.json();
+
+              if (data.results && data.results.length > 0) {
+                const city = data.results[0].components.city;
+                const country = data.results[0].components.country;
+                setLocation(city);
+              } else {
+                console.error("No location information found.");
+              }
+            } catch (error) {
+              console.error("'Error fetching location data:", error);
+            }
+          },
+          (error) => {
+            console.error("Error during geolocation:", error);
+          }
+        );
+      } else {
+        console.error("The browser doesn't support the geolocation.");
+      }
+    };
+
+    getLocation();
+  }, []);
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      if (email) {
+        console.log("vmi");
+        try {
+          const response = await fetch(
+            `http://localhost:5186/Auth/GetProfileData/${email}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            }
+          );
+
+          if (!response.ok) {
+            console.error("Get user data failed:", response.statusText);
+            return;
+          }
+
+          const data = await response.json();
+          setProfile(data);
+          console.log("Profile data ok");
+          console.log("username:", profile[0]);
+        } catch (error) {
+          console.error("Error during profile data loading:", error);
+        }
+      }
+    };
+
+    fetchProfileData();
+  }, [email]);
 
   const navigate = useNavigate();
 
@@ -68,11 +146,11 @@ const SolarWatch = () => {
 
       const chartLabels = ["Sunrise"];
       const chartData = [parseTimeToMinutes(data.sunrise)];
-      console.log(data.sunrise)
+      console.log(data.sunrise);
       next3DaysData.forEach((dayData) => {
         if (dayData) {
           const timeValue = parseTimeToMinutes(dayData.sunrise);
-          chartLabels.push(` ${dayData.date}`);
+          chartLabels.push(`${dayData.date}`);
           chartData.push(timeValue);
         }
       });
@@ -104,23 +182,23 @@ const SolarWatch = () => {
   };
 
   const addFavourite = async () => {
-      setFavourite(city);
-      console.log(city)
-      const response = await fetch("http://localhost:5186/Auth/AddFavouriteCity", {
-      method: "PATCH",
-      headers:{
-      "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-      body: JSON.stringify({
-        Location: city,
-        UserEmail: localStorage.getItem("userEmail"),
-      })
+    setFavourite(city);
+    console.log(city);
+    const response = await fetch(
+      "http://localhost:5186/Auth/AddFavouriteCity",
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        body: JSON.stringify({
+          Location: city,
+          UserEmail: localStorage.getItem("userEmail"),
+        }),
       }
-      )
-    }
-  
-  
+    );
+  };
 
   useEffect(() => {
     if (chartData) {
@@ -147,7 +225,7 @@ const SolarWatch = () => {
                 title: {
                   display: true,
                   text: "Sunrise Time",
-                  color: "black", 
+                  color: "black",
                 },
                 ticks: {
                   callback: function (value, index, values) {
@@ -160,7 +238,7 @@ const SolarWatch = () => {
                     return formattedTime;
                   },
                   color: "black",
-                  stepSize:1,
+                  stepSize: 1,
                 },
               },
             },
@@ -175,21 +253,31 @@ const SolarWatch = () => {
     const parts = timeString.match(/(\d+):(\d+):(\d+) (AM|PM)/);
     if (!parts) return 0;
 
- let hours = parseInt(parts[1]);
- const minutes = parseInt(parts[2]);
- const seconds = parseInt(parts[3]);
- const period = parts[4];
+    let hours = parseInt(parts[1]);
+    const minutes = parseInt(parts[2]);
+    const seconds = parseInt(parts[3]);
+    const period = parts[4];
 
     if (period === "PM" && hours !== 12) {
       hours += 12;
     }
-      console.log(`hours:${hours}, min: ${minutes}`);
+    console.log(`hours:${hours}, min: ${minutes}`);
     return hours * 60 + minutes + seconds / 60;
   }
 
   return (
     <div className="solarwatch-container">
       <h2>Solar Watch</h2>
+      <ul className="city-list">
+        <li>
+          <button onClick={(e) => setCity(location)}>{location}</button>
+        </li>
+        {profile.map((city) => (
+          <li>
+            <button onClick={(e) => setCity(city)}>{city}</button>
+          </li>
+        ))}
+      </ul>
       <form onSubmit={handleSolarwatch}>
         <label>
           City:
