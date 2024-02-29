@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 const Profile = () => {
   const [profile,setProfile] = useState ([]);
   const email = localStorage.getItem("userEmail");
-  console.log(email)
+
      useEffect(() => {
        const fetchProfileData = async () => {
          if (email) {
