@@ -1,14 +1,57 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
+  const [profile,setProfile] = useState ([]);
+  const email = localStorage.getItem("userEmail");
+  console.log(email)
+     useEffect(() => {
+       const fetchProfileData = async () => {
+         if (email) {
+           console.log("vmi");
+           try {
+             const response = await fetch(
+               `http://localhost:5186/Auth/GetProfileData/${email}`,
+               {
+                 method: "GET",
+                 headers: {
+                   "Content-Type": "application/json",
+                   Authorization: `Bearer ${localStorage.getItem(
+                     "accessToken"
+                   )}`,
+                 },
+               }
+             );
+
+             if (!response.ok) {
+               console.error("Get user data failed:", response.statusText);
+               return;
+             }
+
+             const data = await response.json();
+             setProfile(data);
+             console.log("Profile data ok");
+             console.log("username:",profile[0]);
+           } catch (error) {
+             console.error("Error during profile data loading:", error);
+           }
+         }
+       };
+
+       fetchProfileData();
+     }, [email]);
 
   return (
     <div className="profile-container">
       <h2>Profile</h2>
       <p>Username: {localStorage.userName}</p>
       <p>email: {localStorage.userEmail}</p>
-      <p></p>
+      <ul>
+        {profile.map((city)=>
+        <li>
+          {city}
+        </li>)}
+      </ul>
       <p></p>
     </div>
   );
