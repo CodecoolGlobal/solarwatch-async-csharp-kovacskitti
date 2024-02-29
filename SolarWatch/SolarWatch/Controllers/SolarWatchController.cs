@@ -147,11 +147,6 @@ public class SolarWatchController : ControllerBase
             var resultByLocation = _dbContext.Cities.FirstOrDefault(city => city.Name == name);
             if (resultByLocation != null)
             {
-                /*var _coordinate = new Coordinate(lat, lon);
-                var _city = new City(name, _coordinate, state, country);
-                _dbContext.Update(_city);*/
-
-
                 resultByLocation.Name = name;
                 resultByLocation.Coordinate = new Coordinate(lat, lon);
                 resultByLocation.State = state;
