@@ -26,6 +26,18 @@ body {
   padding: 50px 15px 15px;
 }
 
+
+.city-list {
+list-style-type: none;
+ padding: 0;
+}
+
+.city-list li {
+  display: inline; 
+  margin-right: 10px;
+}
+
+
 header input {
   width: 100%;
   max-width: 280px;
@@ -95,13 +107,9 @@ main {
   text-shadow: 0px 4px rgba(0, 0, 0, 0.4);
 }
 
-/* Az új stílusok a navigációs sávra vonatkozóan */
-
-
-
 
 .nav-list li {
-  margin: 0 45px; /* A menüpontok közötti térköz */
+  margin: 0 45px; 
 }
 
 .nav-list a {
@@ -113,7 +121,7 @@ main {
 }
 
 .nav-list a:hover {
-  color: #161433; /* Színváltás hover állapotban */
+  color: #161433;
 }
 
 .solarwatch-container {
