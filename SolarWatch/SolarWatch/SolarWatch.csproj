@@ -27,4 +27,9 @@
         <InternalsVisibleTo Include="IntegrationTestsSW.IntegrationTests" />
     </ItemGroup>
 
+
+    <ItemGroup>
+      <None Remove=".gitignore" />
+    </ItemGroup>
+
 </Project>
