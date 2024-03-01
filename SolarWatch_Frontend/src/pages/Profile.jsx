@@ -35,7 +35,7 @@ const Profile = () => {
          }
        };
 
-       fetchProfileData();
+       fetchFavouriteCities();
      }, [email]);
 
   return (
