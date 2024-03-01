@@ -1,4 +1,6 @@
 using System.Data.Entity;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SolarWatch.Service;
@@ -21,7 +23,7 @@ public class AuthController : ControllerBase
 
     public AuthController(IAuthService authService, ILogger<SolarWatchController> logger,
         AppDbContext dbContext, UsersContext usersContext, IGeocodingDataProvider geocodingDataProvider
-        ,IJsonProcessorToGeocoding jsonProcessorToGeocoding)
+        , IJsonProcessorToGeocoding jsonProcessorToGeocoding)
     {
         _authService = authService;
         _logger = logger;
@@ -49,15 +51,16 @@ public class AuthController : ControllerBase
 
         return CreatedAtAction(nameof(Register), new RegistrationResponse(result.Email, result.UserName));
     }
-    
+
 
     private void AddErrors(AuthResult result)
+    {
+        foreach (var error in result.ErrorMessages)
         {
-            foreach (var error in result.ErrorMessages)
-            {
-                ModelState.AddModelError(error.Key, error.Value);
-            }
+            ModelState.AddModelError(error.Key, error.Value);
         }
+    }
+
     [HttpPost("Login")]
     public async Task<ActionResult<AuthResponse>> Authenticate([FromBody] AuthRequest request)
     {
@@ -76,7 +79,7 @@ public class AuthController : ControllerBase
 
         return Ok(new AuthResponse(result.Email, result.UserName, result.Token));
     }
-    
+
     [Authorize(Roles = "User,Admin")]
     [HttpPatch("AddFavouriteCity")]
     public async Task<ActionResult<Modell.SolarWatch>> AddFavouriteCity([FromBody] FavouriteCityRequest request)
@@ -94,7 +97,7 @@ public class AuthController : ControllerBase
                 _dbContext.UserCities.Add(new UserCity { UserId = currentUser.Id, CityId = _city.Id });
             }
 
-           if (currentUser == null)
+            if (currentUser == null)
             {
                 return BadRequest("The user is not in database.");
             }
@@ -103,7 +106,7 @@ public class AuthController : ControllerBase
             {
                 _dbContext.UserCities.Add(new UserCity { UserId = currentUser.Id, CityId = resultByLocation.Id });
             }
-        
+
 
             await _dbContext.SaveChangesAsync();
             //await _usersContext.SaveChangesAsync();
@@ -120,4 +123,30 @@ public class AuthController : ControllerBase
         return null;
     }
 
+    [Authorize(Roles = "User,Admin")]
+    [HttpGet("GetProfileData/{email}")]
+    public async Task<ActionResult<Modell.SolarWatch>> GetProfileData(string email)
+    {
+        try
+        {
+            var currentUser = _dbContext.Users.FirstOrDefault(user => user.Email == email);
+
+            if (currentUser != null)
+            {
+                var cityIds = _dbContext.UserCities.Where(u => u.UserId == currentUser.Id).Select(uc => uc.CityId).ToList();
+                var cityNames = _dbContext.Cities
+                    .Where(city => cityIds.Contains(city.Id))
+                    .Select(city => city.Name)
+                    .ToList();
+    
+                return Ok(cityNames);
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error getting profile data");
+            return NotFound("Error getting profile data");
+        }
+        return null;
+    }
 }
