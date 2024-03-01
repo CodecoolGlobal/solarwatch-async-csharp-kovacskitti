@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 
 const Profile = () => {
-  const [profile,setProfile] = useState ([]);
+  const [favouriteCities, setFavouriteCities] = useState([]);
   const email = localStorage.getItem("userEmail");
 
      useEffect(() => {
-       const fetchProfileData = async () => {
+       const fetchFavouriteCities = async () => {
          if (email) {
-           console.log("vmi");
            try {
              const response = await fetch(
                `http://localhost:5186/Auth/GetProfileData/${email}`,
@@ -28,9 +27,8 @@ const Profile = () => {
              }
 
              const data = await response.json();
-             setProfile(data);
+             setFavouriteCities(data);
              console.log("Profile data ok");
-             console.log("username:",profile[0]);
            } catch (error) {
              console.error("Error during profile data loading:", error);
            }
@@ -45,11 +43,11 @@ const Profile = () => {
       <h2>Profile</h2>
       <p>Username: {localStorage.userName}</p>
       <p>email: {localStorage.userEmail}</p>
-      <ul>favourite city / cities:
-        {profile.map((city)=>
-        <li>
-          {city}
-        </li>)}
+      <ul>
+        favourite city / cities:
+        {favouriteCities.map((city) => (
+          <li>{city}</li>
+        ))}
       </ul>
       <p></p>
     </div>
