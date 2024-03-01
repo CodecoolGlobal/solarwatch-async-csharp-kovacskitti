@@ -1,12 +1,28 @@
 
 import React from "react";
-import LandingPage from "../LandingPage";
+import { Outlet, Link } from "react-router-dom";
 
-const Layout = ({ children }) => {
+
+const Layout = () => {
   return (
     <div className="Layout">
-      <LandingPage />
-      {children}
+      <nav className="nav-container">
+        <ul className="nav-list">
+          <li>
+            <Link to="/solarwatch">Solarwatch</Link>
+          </li>
+          <li>
+            <Link to="/login">Login</Link>
+          </li>
+          <li>
+            <Link to="/registration">Registration</Link>
+          </li>
+          <li>
+            <Link to="/profile">Profile</Link>
+          </li>
+        </ul>
+      </nav>
+      <Outlet />
     </div>
   );
 };
