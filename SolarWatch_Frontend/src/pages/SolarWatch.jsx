@@ -88,7 +88,7 @@ const SolarWatch = () => {
     };
 
     fetchProfileData();
-  }, [email]);
+  }, []);
 
   const navigate = useNavigate();
 
