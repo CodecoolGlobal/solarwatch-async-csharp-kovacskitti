@@ -266,7 +266,7 @@ const SolarWatch = () => {
   }
 
   return (
-    <div className="solarwatch-container">
+    <div className="basic-container">
       <h2>Solar Watch</h2>
       <ul className="city-list">
         <li>
