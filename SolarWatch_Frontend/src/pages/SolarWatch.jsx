@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import LineChart from "../Components/LineChart.jsx";
 
@@ -7,13 +7,12 @@ const SolarWatch = () => {
   const [city, setCity] = useState("");
   const [date, setDate] = useState("");
   const [solarWatchData, setSolarWatchData] = useState("");
-   const [profile, setProfile] = useState([]);
+  const [profile, setProfile] = useState([]);
   const [location, setLocation] = useState("");
 
   const email = localStorage.getItem("userEmail");
-
   const APIkey = "8c4342c0a59c4611957d1347bb011688";
- 
+
   useEffect(() => {
     const getLocation = () => {
       if (navigator.geolocation) {
@@ -21,7 +20,7 @@ const SolarWatch = () => {
           async (position) => {
             const latitude = position.coords.latitude;
             const longitude = position.coords.longitude;
-              try {
+            try {
               const response = await fetch(
                 `https://api.opencagedata.com/geocode/v1/json?key=${APIkey}&q=${latitude}+${longitude}&language=en&pretty=1`
               );
@@ -35,7 +34,7 @@ const SolarWatch = () => {
                 console.error("No location information found.");
               }
             } catch (error) {
-              console.error("'Error fetching location data:", error);
+              console.error("Error fetching location data:", error);
             }
           },
           (error) => {
@@ -73,7 +72,7 @@ const SolarWatch = () => {
           const data = await response.json();
           setProfile(data);
           console.log("Profile data ok");
-          } catch (error) {
+        } catch (error) {
           console.error("Error during profile data loading:", error);
         }
       }
@@ -103,14 +102,10 @@ const SolarWatch = () => {
 
       const data = await response.json();
       setSolarWatchData(data);
- 
-  } catch (error) {
-    console.error(error.message);
-  }
-}
-
- 
-;
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
 
   const addFavourite = async () => {
     setFavourite(city);
@@ -129,8 +124,6 @@ const SolarWatch = () => {
       }
     );
   };
-
-
 
   return (
     <div className="basic-container">

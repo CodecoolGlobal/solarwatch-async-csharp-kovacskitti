@@ -30,8 +30,6 @@ const Login = () => {
 
       const data = await response.json();
       console.log("Login successful");
-      console.log("User Email:", data);
-      console.log("User Token:", data.token);
 
       localStorage.setItem("accessToken", data.token);
       localStorage.setItem("userEmail", data.email);

@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 const Registration = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
 
   const handleRegistration = async (e) => {
     e.preventDefault();
@@ -32,8 +30,6 @@ const Registration = () => {
 
       const data = await response.json();
       console.log("Registration successful");
-      console.log("User Email:", data.email);
-      console.log("User Token:", data.token);
     } catch (error) {
       console.error("Error during registration:", error);
     }
