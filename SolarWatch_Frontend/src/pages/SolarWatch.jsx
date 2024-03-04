@@ -13,8 +13,7 @@ const SolarWatch = () => {
   const email = localStorage.getItem("userEmail");
 
   const APIkey = "8c4342c0a59c4611957d1347bb011688";
-  console.log(email);
-
+ 
   useEffect(() => {
     const getLocation = () => {
       if (navigator.geolocation) {
@@ -22,8 +21,7 @@ const SolarWatch = () => {
           async (position) => {
             const latitude = position.coords.latitude;
             const longitude = position.coords.longitude;
-            console.log(longitude);
-            try {
+              try {
               const response = await fetch(
                 `https://api.opencagedata.com/geocode/v1/json?key=${APIkey}&q=${latitude}+${longitude}&language=en&pretty=1`
               );
@@ -55,7 +53,6 @@ const SolarWatch = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       if (email) {
-        console.log("vmi");
         try {
           const response = await fetch(
             `http://localhost:5186/Auth/GetProfileData/${email}`,
@@ -76,8 +73,7 @@ const SolarWatch = () => {
           const data = await response.json();
           setProfile(data);
           console.log("Profile data ok");
-          console.log("username:", profile[0]);
-        } catch (error) {
+          } catch (error) {
           console.error("Error during profile data loading:", error);
         }
       }
@@ -118,7 +114,6 @@ const SolarWatch = () => {
 
   const addFavourite = async () => {
     setFavourite(city);
-    console.log(city);
     const response = await fetch(
       "http://localhost:5186/Auth/AddFavouriteCity",
       {
