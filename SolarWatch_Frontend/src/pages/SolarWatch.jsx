@@ -50,11 +50,11 @@ const SolarWatch = () => {
   }, []);
 
   useEffect(() => {
-    const fetchProfileData = async () => {
+    const fetchFavouriteCities = async () => {
       if (email) {
         try {
           const response = await fetch(
-            `http://localhost:5186/Auth/GetProfileData/${email}`,
+            `http://localhost:5186/User/GetFavouriteCities/${email}`,
             {
               method: "GET",
               headers: {
@@ -78,7 +78,7 @@ const SolarWatch = () => {
       }
     };
 
-    fetchProfileData();
+    fetchFavouriteCities();
   }, []);
 
   const handleSolarwatch = async (e) => {
@@ -108,9 +108,8 @@ const SolarWatch = () => {
   };
 
   const addFavourite = async () => {
-    setFavourite(city);
     const response = await fetch(
-      "http://localhost:5186/Auth/AddFavouriteCity",
+      "http://localhost:5186/User/AddFavouriteCity",
       {
         method: "PATCH",
         headers: {
@@ -147,7 +146,7 @@ const SolarWatch = () => {
             onChange={(e) => setCity(e.target.value)}
             required
           />
-          <button>
+          <button type="button">
             <FontAwesomeIcon icon={faHeart} onClick={addFavourite} />
           </button>
         </label>
