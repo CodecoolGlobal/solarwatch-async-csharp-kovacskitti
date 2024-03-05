@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using SolarWatch.Data;
 using SolarWatch.Service;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -87,8 +86,6 @@ void ConfigureSwagger()
 void AddDbContext()
 {
     builder.Services.AddDbContext<AppDbContext>();
-    builder.Services.AddDbContext<UsersContext>();
-    //InitializeDb();
 }
 
 void AddAuthentication()
@@ -127,8 +124,7 @@ void AddIdentity()
             options.Password.RequireUppercase = false;
             options.Password.RequireLowercase = false;
         })
-        .AddRoles<IdentityRole>()
-        .AddEntityFrameworkStores<UsersContext>();
+        .AddRoles<IdentityRole>();
 }
 
 void AddRoles()
