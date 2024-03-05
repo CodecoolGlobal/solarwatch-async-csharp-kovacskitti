@@ -42,14 +42,12 @@ public class SolarWatchController : ControllerBase
                 _dbContext.Entry(resultByLocation).Reference(city => city.Coordinate).Load();
             }
 
-            //Console.WriteLine(resultByLocation.Coordinate.Lat);
             var _city = new City();
 
             if (resultByLocation == null)
             {
                 var locationData = await _geocodingDataProvider.GetCurrent(location);
                 _city = _jsonProcessorToGeocoding.Process(locationData);
-                Console.WriteLine(_city.Id);
                 try
                 {
                     var date = currentDate.ToString("yyyy-MM-dd");
@@ -65,8 +63,6 @@ public class SolarWatchController : ControllerBase
             }
             else if (resultByLocation.GetType() == typeof(City))
             {
-                _city = resultByLocation;
-                Console.WriteLine(resultByLocation.Coordinate.Lat);
                 try
                 {
                     var date = currentDate.ToString("yyyy-MM-dd");
@@ -99,12 +95,10 @@ public class SolarWatchController : ControllerBase
             var resultByLocation = _dbContext.Cities.FirstOrDefault(city => city.Name == location);
             if (resultByLocation != null)
             {
-                Console.WriteLine(resultByLocation.Id);
                 _dbContext.Remove(resultByLocation);
                 _dbContext.SaveChanges();
                 return Ok($"{location} deleted from the database");
             }
-            //Console.WriteLine(resultByLocation.Coordinate.Lat);
         }
         catch (Exception e)
         {
