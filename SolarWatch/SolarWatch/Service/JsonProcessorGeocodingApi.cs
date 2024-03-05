@@ -1,14 +1,13 @@
-using System.Data.Entity;
 using System.Text.Json;
-using System.Text.Json.Nodes;
+using SolarWatch.Controllers;
 using SolarWatch.Model;
-using SolarWatch.Modell;
 
 namespace SolarWatch.Service;
 
 public class JsonProcessorGeocodingApi:IJsonProcessorToGeocoding
 {
     private readonly AppDbContext _dbContext;
+    private readonly ILogger<SolarWatchController> _logger;
 
     public JsonProcessorGeocodingApi(AppDbContext dbContext)
     {
@@ -16,26 +15,33 @@ public class JsonProcessorGeocodingApi:IJsonProcessorToGeocoding
     }
     public City Process(string data)
     {
-        
-        var cityList = JsonSerializer.Deserialize<IList<CityData>>(data, new JsonSerializerOptions()
+        try
         {
-            PropertyNameCaseInsensitive = true
-        });
-        
-        
-        var firstCityData = cityList[0];
-        var currentCity = new City()
+            var cityList = JsonSerializer.Deserialize<IList<CityData>>(data, new JsonSerializerOptions()
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+
+            var firstCityData = cityList[0];
+            
+            var currentCity = new City()
+            {
+                Name = firstCityData.Name,
+                Coordinate = new Coordinate(
+                    firstCityData.Lat, firstCityData.Lon),
+                State = firstCityData.State,
+                Country = firstCityData.Country
+            };
+            _dbContext.Cities.Add(currentCity);
+            _dbContext.SaveChanges();
+            return currentCity;
+        }
+        catch (Exception e)
         {
-            Name = firstCityData.Name,
-            Coordinate = new Coordinate(
-                firstCityData.Lat, firstCityData.Lon),
-            State = firstCityData.State,
-            Country = firstCityData.Country
-        };
-        
-        _dbContext.Cities.Add(currentCity);
-        _dbContext.SaveChanges();
-        return currentCity;
+            _logger.LogError(e, "Error saving city to database");
+            return null;
+        }
     }
     
   
