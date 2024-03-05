@@ -1,12 +1,6 @@
-using System.Data.Entity;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SolarWatch.Service;
 using SolarWatch.Contracts;
-using SolarWatch.Data;
-using SolarWatch.Model;
 
 namespace SolarWatch.Controllers;
 
@@ -15,22 +9,10 @@ namespace SolarWatch.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
-    private readonly ILogger<SolarWatchController> _logger;
-    private readonly IJsonProcessorToGeocoding _jsonProcessorToGeocoding;
-    private readonly IGeocodingDataProvider _geocodingDataProvider;
-    private readonly AppDbContext _dbContext;
-    private readonly UsersContext _usersContext;
-
-    public AuthController(IAuthService authService, ILogger<SolarWatchController> logger,
-        AppDbContext dbContext, UsersContext usersContext, IGeocodingDataProvider geocodingDataProvider
-        , IJsonProcessorToGeocoding jsonProcessorToGeocoding)
+    
+    public AuthController(IAuthService authService)
     {
         _authService = authService;
-        _logger = logger;
-        _dbContext = dbContext;
-        _usersContext = usersContext;
-        _geocodingDataProvider = geocodingDataProvider;
-        _jsonProcessorToGeocoding = jsonProcessorToGeocoding;
     }
 
     [HttpPost("Register")]
@@ -80,73 +62,5 @@ public class AuthController : ControllerBase
         return Ok(new AuthResponse(result.Email, result.UserName, result.Token));
     }
 
-    [Authorize(Roles = "User,Admin")]
-    [HttpPatch("AddFavouriteCity")]
-    public async Task<ActionResult<Modell.SolarWatch>> AddFavouriteCity([FromBody] FavouriteCityRequest request)
-    {
-        try
-        {
-            var currentUser = _dbContext.Users.FirstOrDefault((user => user.Email == request.UserEmail));
-            var resultByLocation = _dbContext.Cities.FirstOrDefault(city => city.Name == request.Location);
-            Console.WriteLine(resultByLocation);
-            var _city = new City();
-            if (resultByLocation == null)
-            {
-                var locationData = await _geocodingDataProvider.GetCurrent(request.Location);
-                _city = _jsonProcessorToGeocoding.Process(locationData);
-                _dbContext.UserCities.Add(new UserCity { UserId = currentUser.Id, CityId = _city.Id });
-            }
-
-            if (currentUser == null)
-            {
-                return BadRequest("The user is not in database.");
-            }
-
-            if (resultByLocation != null)
-            {
-                _dbContext.UserCities.Add(new UserCity { UserId = currentUser.Id, CityId = resultByLocation.Id });
-            }
-
-
-            await _dbContext.SaveChangesAsync();
-            //await _usersContext.SaveChangesAsync();
-
-            return Ok("The city has been successfully added to the user's favorite cities.");
-
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Error getting location data");
-            return NotFound("Error getting location data");
-        }
-
-        return null;
-    }
-
-    [Authorize(Roles = "User,Admin")]
-    [HttpGet("GetProfileData/{email}")]
-    public async Task<ActionResult<Modell.SolarWatch>> GetProfileData(string email)
-    {
-        try
-        {
-            var currentUser = _dbContext.Users.FirstOrDefault(user => user.Email == email);
-
-            if (currentUser != null)
-            {
-                var cityIds = _dbContext.UserCities.Where(u => u.UserId == currentUser.Id).Select(uc => uc.CityId).ToList();
-                var cityNames = _dbContext.Cities
-                    .Where(city => cityIds.Contains(city.Id))
-                    .Select(city => city.Name)
-                    .ToList();
     
-                return Ok(cityNames);
-            }
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Error getting profile data");
-            return NotFound("Error getting profile data");
-        }
-        return null;
-    }
 }
