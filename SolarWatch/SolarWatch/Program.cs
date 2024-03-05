@@ -2,8 +2,10 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SolarWatch.Model;
 using SolarWatch.Service;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,6 +51,7 @@ void AddServices()
     builder.Services.AddScoped<IJsonProcessorToSolarWatch, JsonProcessorSunsetAndSunriseTimesApi>();
     builder.Services.AddScoped<IGeocodingDataProvider, GeocodingApi>();
     builder.Services.AddScoped<IJsonProcessorToGeocoding, JsonProcessorGeocodingApi>();
+    builder.Services.AddScoped<IUserFavouriteCityService, UserFavouriteCityService>();
 }
 
 void ConfigureSwagger()
@@ -114,7 +117,7 @@ void AddAuthentication()
 void AddIdentity()
 {
     builder.Services
-        .AddIdentityCore<IdentityUser>(options =>
+        .AddIdentityCore<User>(options =>
         {
             options.SignIn.RequireConfirmedAccount = false;
             options.User.RequireUniqueEmail = true;
@@ -124,7 +127,8 @@ void AddIdentity()
             options.Password.RequireUppercase = false;
             options.Password.RequireLowercase = false;
         })
-        .AddRoles<IdentityRole>();
+        .AddRoles<IdentityRole>()
+        .AddEntityFrameworkStores<AppDbContext>();
 }
 
 void AddRoles()
@@ -158,12 +162,12 @@ void AddAdmin()
 async Task CreateAdminIfNotExists()
 {
     using var scope = app.Services.CreateScope();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
     var adminInDb = await userManager.FindByEmailAsync("admin@admin.com");
     if (adminInDb == null)
     {
-        var admin = new IdentityUser { UserName = "admin", Email = "admin@admin.com" };
-        var adminCreated = await userManager.CreateAsync(admin, "admin123");
+        var admin = new User { UserName = "admin", Email = "admin@admin.com" };
+        var adminCreated = await userManager.CreateAsync(admin,"admin123");
 
         if (adminCreated.Succeeded)
         {
