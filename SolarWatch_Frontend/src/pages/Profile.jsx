@@ -9,7 +9,7 @@ const Profile = () => {
       if (email) {
         try {
           const response = await fetch(
-            `http://localhost:5186/Auth/GetProfileData/${email}`,
+            `http://localhost:5186/User/GetFavouriteCities/${email}`,
             {
               method: "GET",
               headers: {
