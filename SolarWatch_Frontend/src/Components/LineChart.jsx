@@ -9,8 +9,7 @@ const LineChart = ({city, date}) => {
    
   useEffect(()=> { 
     const dataForChart = async (e) => {
-      console.log(city)
-       const next3DaysData = [];
+      const next3DaysData = [];
       const chartData = [];
 
       for (let i = 1; i <= 3; i++) {
@@ -37,7 +36,6 @@ const LineChart = ({city, date}) => {
           const dayData = await response.json();
           const sunriseTime = parseTimeToMinutes(dayData.sunrise);
           chartData.push({ date: nextDayFormatted, sunrise: sunriseTime });
-          console.log(chartData);
         } catch (error) {
           console.error(error.message);
         }
@@ -45,7 +43,6 @@ const LineChart = ({city, date}) => {
 
       setChartData(chartData);
       console.log("Search successful");
-      console.log("next3DaysData", next3DaysData);
       };
 dataForChart();
     },[date])

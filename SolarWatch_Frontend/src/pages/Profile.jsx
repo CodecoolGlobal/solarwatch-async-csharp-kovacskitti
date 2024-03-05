@@ -20,15 +20,17 @@ const Profile = () => {
           );
 
           if (!response.ok) {
-            console.error("Get user data failed:", response.statusText);
+             console.error(
+               "Get user's favourite cities failed:",response.statusText
+             );
             return;
           }
 
           const data = await response.json();
           setFavouriteCities(data);
-          console.log("Profile data ok");
+          console.log("User's favourite cities ok");
         } catch (error) {
-          console.error("Error during profile data loading:", error);
+          console.error("Error during user's favourite cities loading:", error);
         }
       }
     };

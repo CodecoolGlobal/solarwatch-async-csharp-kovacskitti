@@ -7,7 +7,7 @@ const SolarWatch = () => {
   const [city, setCity] = useState("");
   const [date, setDate] = useState("");
   const [solarWatchData, setSolarWatchData] = useState("");
-  const [profile, setProfile] = useState([]);
+  const [favouriteCities, setFavouriteCities] = useState([]);
   const [location, setLocation] = useState("");
 
   const email = localStorage.getItem("userEmail");
@@ -65,15 +65,15 @@ const SolarWatch = () => {
           );
 
           if (!response.ok) {
-            console.error("Get user data failed:", response.statusText);
+            console.error("Get user's favourite cities failed:", response.statusText);
             return;
           }
 
           const data = await response.json();
-          setProfile(data);
-          console.log("Profile data ok");
+          setFavouriteCities(data);
+          console.log("User's favourite cities ok");
         } catch (error) {
-          console.error("Error during profile data loading:", error);
+          console.error("Error during user's favourite cities loading:", error);
         }
       }
     };
@@ -131,7 +131,7 @@ const SolarWatch = () => {
         <li>
           <button onClick={(e) => setCity(location)}>{location}</button>
         </li>
-        {profile.map((city) => (
+        {favouriteCities.map((city) => (
           <li>
             <button onClick={(e) => setCity(city)}>{city}</button>
           </li>
