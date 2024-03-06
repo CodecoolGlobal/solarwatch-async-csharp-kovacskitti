@@ -1,11 +1,14 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SolarWatch.Contracts;
 using SolarWatch.Controllers;
 using SolarWatch.Service;
 using SolarWatch.Model;
 
 
 namespace SolarWatch.Service;
+
 
 public class UserFavouriteCityService : IUserFavouriteCityService
 {
@@ -24,8 +27,9 @@ public class UserFavouriteCityService : IUserFavouriteCityService
         _jsonProcessorToGeocoding = jsonProcessorToGeocoding;
     }
     
-   public async Task<ActionResult<Modell.SolarWatch>> AddCity(string userEmail, string cityName)
+   public async Task<CustomResponse> AddCity(string userEmail, string cityName)
     {
+        
         var currentUser = _dbContext.Users.FirstOrDefault((user => user.Email == userEmail));
         var resultByLocation = _dbContext.Cities.FirstOrDefault(city => city.Name == cityName);
         var _city = new City();
@@ -38,17 +42,26 @@ public class UserFavouriteCityService : IUserFavouriteCityService
 
         if (currentUser == null)
         {
-            return new BadRequestObjectResult("The user is not in database.");
+            return new CustomResponse("The user is not in database.", 400);
         }
 
-        if (resultByLocation != null)
+        var dataFromDB = _dbContext.UserCities.FirstOrDefault(city =>
+            city.CityId == resultByLocation.Id && city.UserId == currentUser.Id);
+        if (dataFromDB != null)
+        {
+           return new CustomResponse(
+                "Previously, this town has been saved to your list of favorite cities.", 400);
+
+        }
+        
+        if (resultByLocation != null && dataFromDB == null)
         {
             _dbContext.UserCities.Add(new UserCity { UserId = currentUser.Id, CityId = resultByLocation.Id });
         }
-
+       
         await _dbContext.SaveChangesAsync();
             
-        return new OkObjectResult("The city has been successfully added to the user's favorite cities.");
+        return new CustomResponse("The city has been successfully added to the user's favorite cities.", 200);
     }
 
     public List<string> GetCities(string userEmail)
@@ -67,5 +80,22 @@ public class UserFavouriteCityService : IUserFavouriteCityService
         }
 
         return null;
+    }
+
+    public async Task<string> CurrentCity(double latitude, double longitude)
+    {
+        var ApiKey = "8c4342c0a59c4611957d1347bb011688";
+        var url = $"https://api.opencagedata.com/geocode/v1/json?key={ApiKey}&q={latitude}+{longitude}&language=en&pretty=1";
+        var client = new HttpClient();
+        
+        _logger.LogInformation(message:"Calling geolocation API with url: {url}", url);
+        var response = await client.GetAsync(url);
+        var stringResponse = await response.Content.ReadAsStringAsync();
+        var json = JsonDocument.Parse(stringResponse);
+        
+        JsonElement results = json.RootElement.GetProperty("results");
+        var cityName = results[0].GetProperty("components").GetProperty("city").GetString();
+        Console.WriteLine(cityName);
+        return cityName;
     }
 }
