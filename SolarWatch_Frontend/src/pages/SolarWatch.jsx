@@ -22,8 +22,7 @@ const SolarWatch = () => {
       if (email) {
         const decodedToken = jwtDecode(token);
         const currentTime = Date.now() / 1000;
-        console.log("vmi");
-        
+                
           if (decodedToken.exp < currentTime) {
             console.log("The token is invalid");
             localStorage.removeItem("accessToken");
@@ -144,7 +143,6 @@ const SolarWatch = () => {
       const responseData = await response.json();
       if (response.status == 400) {
         console.error("Search failed:", responseData.Message);
-        console.log(responseData);
         setPopupMessage(responseData.message);
         return;
       }
