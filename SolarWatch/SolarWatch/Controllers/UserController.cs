@@ -21,18 +21,22 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = "User,Admin")]
     [HttpPatch("AddFavouriteCity")]
-    public async Task<ActionResult<Modell.SolarWatch>> AddFavouriteCity([FromBody] FavouriteCityRequest request)
+    public async Task<ActionResult> AddFavouriteCity([FromBody] FavouriteCityRequest request)
     {
-        try
+        var result = await _userFavouriteCity.AddCity(request.UserEmail, request.Location);
+        if (result.StatusCode == 200)
         {
-          await _userFavouriteCity.AddCity(request.UserEmail, request.Location);
+            return Ok(new { Message = result.Message }); 
         }
-        catch (Exception e)
+        else if (result.StatusCode == 404)
         {
-            _logger.LogError(e, "Error getting location data");
-            return NotFound("Error getting location data");
+            return NotFound(new { Message = result.Message });
         }
-        return null;
+        else
+        {
+            return StatusCode(result.StatusCode, new { Message = result.Message });
+        }  
+    
     }
 
     [Authorize(Roles = "User,Admin")]
@@ -47,6 +51,23 @@ public class UserController : ControllerBase
         {
             _logger.LogError(e, "Error getting favourite cities");
             return NotFound("Error getting favourite cities");
+        }
+        return null;
+    }
+    
+    
+    [HttpGet("GetCurrentCity/{latitude}&{longitude}")]
+    public async Task<ActionResult<Modell.SolarWatch>> GetCurrentCity(double latitude, double longitude)
+    {
+        try
+        {
+            var result = await _userFavouriteCity.CurrentCity(latitude, longitude);
+            return Ok(new { CityName = result });
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error getting geolocation");
+            return NotFound("Error getting geolocation");
         }
         return null;
     }
