@@ -74,8 +74,7 @@ public class UserFavouriteCityService : IUserFavouriteCityService
                 .Where(city => cityIds.Contains(city.Id))
                 .Select(city => city.Name)
                 .ToList();
-    
-        Console.WriteLine(cityNames[0]);
+            
             return cityNames;
         }
 
@@ -95,7 +94,6 @@ public class UserFavouriteCityService : IUserFavouriteCityService
         
         JsonElement results = json.RootElement.GetProperty("results");
         var cityName = results[0].GetProperty("components").GetProperty("city").GetString();
-        Console.WriteLine(cityName);
         return cityName;
     }
 }

@@ -56,8 +56,7 @@ public class AuthService : IAuthService
   }
 
   var roles = await _userManager.GetRolesAsync(managedUser);
-  Console.WriteLine($"Roles Count: {roles.Count()}");
-
+ 
   var accessToken = _tokenService.CreateToken(managedUser, roles[0]);
 
   return new AuthResult(true, managedUser.Email, managedUser.UserName, accessToken);
