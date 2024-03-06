@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import LineChart from "../Components/LineChart.jsx";
+import { jwtDecode } from "jwt-decode";
+import Popup from "reactjs-popup";
+import "reactjs-popup/dist/index.css";
 
 const SolarWatch = () => {
   const [city, setCity] = useState("");
@@ -9,9 +12,31 @@ const SolarWatch = () => {
   const [solarWatchData, setSolarWatchData] = useState("");
   const [favouriteCities, setFavouriteCities] = useState([]);
   const [location, setLocation] = useState("");
+  const [popupMessage,setPopupMessage] = useState(false)
 
   const email = localStorage.getItem("userEmail");
-  const APIkey = "8c4342c0a59c4611957d1347bb011688";
+  const token = localStorage.getItem("accessToken");
+  
+  useEffect(() => {
+    const checkTokenValidity = async () => {;
+      if (email) {
+        const decodedToken = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+        console.log("vmi");
+        
+          if (decodedToken.exp < currentTime) {
+            console.log("The token is invalid");
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("email");
+          } else {
+            console.log("Token is valid");
+          }
+        } else {
+          console.log("Token is not in the localStorage");
+        }
+      };
+    checkTokenValidity();
+  }, [email]);
 
   useEffect(() => {
     const getLocation = () => {
@@ -22,19 +47,12 @@ const SolarWatch = () => {
             const longitude = position.coords.longitude;
             try {
               const response = await fetch(
-                `https://api.opencagedata.com/geocode/v1/json?key=${APIkey}&q=${latitude}+${longitude}&language=en&pretty=1`
+                `http://localhost:5186/User/GetCurrentCity/${latitude}&${longitude}`,
               );
               const data = await response.json();
-
-              if (data.results && data.results.length > 0) {
-                const city = data.results[0].components.city;
-                const country = data.results[0].components.country;
-                setLocation(city);
-              } else {
-                console.error("No location information found.");
-              }
+              setLocation(data.cityName);
             } catch (error) {
-              console.error("Error fetching location data:", error);
+              console.error("Error fetching geolocation data:", error);
             }
           },
           (error) => {
@@ -108,20 +126,32 @@ const SolarWatch = () => {
   };
 
   const addFavourite = async () => {
-    const response = await fetch(
-      "http://localhost:5186/User/AddFavouriteCity",
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-        body: JSON.stringify({
-          Location: city,
-          UserEmail: localStorage.getItem("userEmail"),
-        }),
+    if (token) {
+      const response = await fetch(
+        "http://localhost:5186/User/AddFavouriteCity",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            Location: city,
+            UserEmail: localStorage.getItem("userEmail"),
+          }),
+        }
+      );
+      const responseData = await response.json();
+      if (response.status == 400) {
+        console.error("Search failed:", responseData.Message);
+        console.log(responseData);
+        setPopupMessage(responseData.message);
+        return;
       }
-    );
+      setPopupMessage(`${city} has been added to your list of favorite cities`);
+    } else {
+      setPopupMessage("Please log in to use this function!");
+    }
   };
 
   return (
@@ -146,9 +176,13 @@ const SolarWatch = () => {
             onChange={(e) => setCity(e.target.value)}
             required
           />
-          <button type="button">
+         <Popup trigger= 
+          {<button type="button">
             <FontAwesomeIcon icon={faHeart} onClick={addFavourite} />
-          </button>
+          </button>}
+          position="right center">
+          <div>{popupMessage}</div>
+          </Popup>
         </label>
         <label>
           Date:
