@@ -145,7 +145,6 @@ const SolarWatch = () => {
 
     if (token) {
       const selectedCity = city;
-      console.log(selectedCity);
       try {
         const response = await fetch(
           "http://localhost:5186/User/AddFavouriteCity",
