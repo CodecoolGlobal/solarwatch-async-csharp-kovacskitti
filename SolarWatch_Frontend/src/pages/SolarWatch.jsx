@@ -167,7 +167,7 @@ const SolarWatch = () => {
           setTypingTimer(
             setTimeout(() => {
               setPopupVisible(false);
-            }, 1000)
+            }, 3000)
           );
           return;
         } else {
@@ -187,7 +187,7 @@ const SolarWatch = () => {
     }
   };
 
-  const handleTyping = (e) => {
+  const handleTyping = () => {
     setIsTyping(true);
     clearTimeout(typingTimer);
   };
