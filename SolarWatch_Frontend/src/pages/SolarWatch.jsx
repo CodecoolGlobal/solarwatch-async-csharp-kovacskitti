@@ -30,6 +30,7 @@ const SolarWatch = () => {
 
   useEffect(() => {
     const checkTokenValidity = async () => {
+      setFavouriteCities([]);
       if (email) {
         const decodedToken = jwtDecode(token);
         const currentTime = Date.now() / 1000;
@@ -42,11 +43,12 @@ const SolarWatch = () => {
           console.log("Token is valid");
         }
       } else {
+        setFavouriteCities([]);
         console.log("Token is not in the localStorage");
       }
     };
     checkTokenValidity();
-  }, []);
+  }, [localStorage]);
 
   useEffect(() => {
     const getLocation = () => {
