@@ -13,10 +13,21 @@ const SolarWatch = () => {
   const [favouriteCities, setFavouriteCities] = useState([]);
   const [location, setLocation] = useState("");
   const [popupMessage,setPopupMessage] = useState(false)
-
+const [popupVisible, setPopupVisible] = useState(false);
+const [typingTimer, setTypingTimer] = useState(null);
+const [isTyping, setIsTyping] = useState(false);
   const email = localStorage.getItem("userEmail");
   const token = localStorage.getItem("accessToken");
   
+  useEffect(() => {
+    if (popupVisible) {
+      const timeout = setTimeout(() => {
+        setPopupVisible(false);
+      }, 3000);
+      return () => clearTimeout(timeout);
+    }
+  }, [popupVisible]);
+
   useEffect(() => {
     const checkTokenValidity = async () => {;
       if (email) {
@@ -35,7 +46,7 @@ const SolarWatch = () => {
         }
       };
     checkTokenValidity();
-  }, [email]);
+  }, []);
 
   useEffect(() => {
     const getLocation = () => {
@@ -82,7 +93,10 @@ const SolarWatch = () => {
           );
 
           if (!response.ok) {
-            console.error("Get user's favourite cities failed:", response.statusText);
+            console.error(
+              "Get user's favourite cities failed:",
+              response.statusText
+            );
             return;
           }
 
@@ -96,7 +110,7 @@ const SolarWatch = () => {
     };
 
     fetchFavouriteCities();
-  }, []);
+  }, [email, popupMessage]);
 
   const handleSolarwatch = async (e) => {
     e.preventDefault();
@@ -125,7 +139,12 @@ const SolarWatch = () => {
   };
 
   const addFavourite = async () => {
+    clearTimeout(typingTimer);
+
     if (token) {
+       const selectedCity = city;
+       console.log(selectedCity);
+      try{
       const response = await fetch(
         "http://localhost:5186/User/AddFavouriteCity",
         {
@@ -135,21 +154,44 @@ const SolarWatch = () => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            Location: city,
+            Location: selectedCity,
             UserEmail: localStorage.getItem("userEmail"),
           }),
         }
       );
       const responseData = await response.json();
-      if (response.status == 400) {
-        console.error("Search failed:", responseData.Message);
+      if (response.status == 200) {
+        console.log(responseData.message);
         setPopupMessage(responseData.message);
+        setPopupVisible(true);
+        setTypingTimer(
+          setTimeout(() => {
+            setPopupVisible(false);
+          }, 1000)
+        );
         return;
+      } else {
+        console.error("Search failed:", responseData.Message);
       }
-      setPopupMessage(`${city} has been added to your list of favorite cities`);
-    } else {
-      setPopupMessage("Please log in to use this function!");
+     
+    }catch (error){
+      console.error(error.message);
     }
+    } else {
+        setPopupMessage("Please log in to use this function!");
+        setPopupVisible(true);
+          setTypingTimer(
+          setTimeout(() => {
+            setPopupVisible(false);
+          }, 2000)
+        );
+  
+    }
+  };
+
+  const handleTyping = (e) => {
+    setIsTyping(true);
+    clearTimeout(typingTimer);
   };
 
   return (
@@ -169,17 +211,24 @@ const SolarWatch = () => {
         <label>
           City:
           <input
-            type="string"
+            type="text"
             value={city}
-            onChange={(e) => setCity(e.target.value)}
+            onChange={(e) => {
+              setCity(e.target.value);
+              handleTyping();
+            }}
             required
           />
-         <Popup trigger= 
-          {<button type="button">
-            <FontAwesomeIcon icon={faHeart} onClick={addFavourite} />
-          </button>}
-          position="right center">
-          <div>{popupMessage}</div>
+          <Popup
+            trigger={
+              <button type="button">
+                <FontAwesomeIcon icon={faHeart} onClick={addFavourite} />
+              </button>
+            }
+            position="right center"
+            open={popupVisible}
+          >
+            <div>{popupMessage}</div>
           </Popup>
         </label>
         <label>
