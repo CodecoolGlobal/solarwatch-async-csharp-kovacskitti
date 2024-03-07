@@ -45,23 +45,26 @@ public class UserFavouriteCityService : IUserFavouriteCityService
             return new CustomResponse("The user is not in database.", 400);
         }
 
-        var dataFromDB = _dbContext.UserCities.FirstOrDefault(city =>
-            city.CityId == resultByLocation.Id && city.UserId == currentUser.Id);
-        if (dataFromDB != null)
+        if (resultByLocation != null)
         {
-           return new CustomResponse(
-                "Previously, this town has been saved to your list of favorite cities.", 400);
+            var dataFromDB = _dbContext.UserCities.FirstOrDefault(city =>
+                city.CityId == resultByLocation.Id && city.UserId == currentUser.Id);
+            
+            if (dataFromDB != null)
+            {
+                return new CustomResponse(
+                    $"Previously, {cityName} has been saved to your list of favorite cities.", 200);
+            }
 
+            if (dataFromDB == null)
+            {
+                _dbContext.UserCities.Add(new UserCity { UserId = currentUser.Id, CityId = resultByLocation.Id });
+            }
         }
-        
-        if (resultByLocation != null && dataFromDB == null)
-        {
-            _dbContext.UserCities.Add(new UserCity { UserId = currentUser.Id, CityId = resultByLocation.Id });
-        }
-       
+
         await _dbContext.SaveChangesAsync();
             
-        return new CustomResponse("The city has been successfully added to the user's favorite cities.", 200);
+        return new CustomResponse("{cityName} has been successfully added to the user's favorite cities.", 200);
     }
 
     public List<string> GetCities(string userEmail)
