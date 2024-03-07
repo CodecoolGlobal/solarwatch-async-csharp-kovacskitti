@@ -12,13 +12,13 @@ const SolarWatch = () => {
   const [solarWatchData, setSolarWatchData] = useState("");
   const [favouriteCities, setFavouriteCities] = useState([]);
   const [location, setLocation] = useState("");
-  const [popupMessage,setPopupMessage] = useState(false)
-const [popupVisible, setPopupVisible] = useState(false);
-const [typingTimer, setTypingTimer] = useState(null);
-const [isTyping, setIsTyping] = useState(false);
+  const [popupMessage, setPopupMessage] = useState(false);
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [typingTimer, setTypingTimer] = useState(null);
+  const [isTyping, setIsTyping] = useState(false);
   const email = localStorage.getItem("userEmail");
   const token = localStorage.getItem("accessToken");
-  
+
   useEffect(() => {
     if (popupVisible) {
       const timeout = setTimeout(() => {
@@ -29,22 +29,22 @@ const [isTyping, setIsTyping] = useState(false);
   }, [popupVisible]);
 
   useEffect(() => {
-    const checkTokenValidity = async () => {;
+    const checkTokenValidity = async () => {
       if (email) {
         const decodedToken = jwtDecode(token);
         const currentTime = Date.now() / 1000;
-                
-          if (decodedToken.exp < currentTime) {
-            console.log("The token is invalid");
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("email");
-          } else {
-            console.log("Token is valid");
-          }
+
+        if (decodedToken.exp < currentTime) {
+          console.log("The token is invalid");
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("email");
         } else {
-          console.log("Token is not in the localStorage");
+          console.log("Token is valid");
         }
-      };
+      } else {
+        console.log("Token is not in the localStorage");
+      }
+    };
     checkTokenValidity();
   }, []);
 
@@ -57,7 +57,7 @@ const [isTyping, setIsTyping] = useState(false);
             const longitude = position.coords.longitude;
             try {
               const response = await fetch(
-                `http://localhost:5186/User/GetCurrentCity/${latitude}&${longitude}`,
+                `http://localhost:5186/User/GetCurrentCity/${latitude}&${longitude}`
               );
               const data = await response.json();
               setLocation(data.cityName);
@@ -142,50 +142,48 @@ const [isTyping, setIsTyping] = useState(false);
     clearTimeout(typingTimer);
 
     if (token) {
-       const selectedCity = city;
-       console.log(selectedCity);
-      try{
-      const response = await fetch(
-        "http://localhost:5186/User/AddFavouriteCity",
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            Location: selectedCity,
-            UserEmail: localStorage.getItem("userEmail"),
-          }),
-        }
-      );
-      const responseData = await response.json();
-      if (response.status == 200) {
-        console.log(responseData.message);
-        setPopupMessage(responseData.message);
-        setPopupVisible(true);
-        setTypingTimer(
-          setTimeout(() => {
-            setPopupVisible(false);
-          }, 1000)
+      const selectedCity = city;
+      console.log(selectedCity);
+      try {
+        const response = await fetch(
+          "http://localhost:5186/User/AddFavouriteCity",
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              Location: selectedCity,
+              UserEmail: localStorage.getItem("userEmail"),
+            }),
+          }
         );
-        return;
-      } else {
-        console.error("Search failed:", responseData.Message);
-      }
-     
-    }catch (error){
-      console.error(error.message);
-    }
-    } else {
-        setPopupMessage("Please log in to use this function!");
-        setPopupVisible(true);
+        const responseData = await response.json();
+        if (response.status == 200) {
+          console.log(responseData.message);
+          setPopupMessage(responseData.message);
+          setPopupVisible(true);
           setTypingTimer(
-          setTimeout(() => {
-            setPopupVisible(false);
-          }, 2000)
-        );
-  
+            setTimeout(() => {
+              setPopupVisible(false);
+            }, 1000)
+          );
+          return;
+        } else {
+          console.error("Search failed:", responseData.Message);
+        }
+      } catch (error) {
+        console.error(error.message);
+      }
+    } else {
+      setPopupMessage("Please log in to use this function!");
+      setPopupVisible(true);
+      setTypingTimer(
+        setTimeout(() => {
+          setPopupVisible(false);
+        }, 2000)
+      );
     }
   };
 
