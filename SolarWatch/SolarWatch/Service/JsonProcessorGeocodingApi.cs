@@ -9,11 +9,12 @@ public class JsonProcessorGeocodingApi:IJsonProcessorToGeocoding
     private readonly AppDbContext _dbContext;
     private readonly ILogger<SolarWatchController> _logger;
 
-    public JsonProcessorGeocodingApi(AppDbContext dbContext)
+    public JsonProcessorGeocodingApi(AppDbContext dbContext, ILogger<SolarWatchController> logger)
     {
         _dbContext = dbContext;
+        _logger = logger;
     }
-    public City Process(string data)
+    public async Task<City> Process(string data)
     {
         try
         {
@@ -24,7 +25,6 @@ public class JsonProcessorGeocodingApi:IJsonProcessorToGeocoding
 
 
             var firstCityData = cityList[0];
-            
             var currentCity = new City()
             {
                 Name = firstCityData.Name,
