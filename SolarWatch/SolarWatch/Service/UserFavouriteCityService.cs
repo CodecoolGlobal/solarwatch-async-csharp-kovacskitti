@@ -36,7 +36,7 @@ public class UserFavouriteCityService : IUserFavouriteCityService
         if (resultByLocation == null)
         {
             var locationData = await _geocodingDataProvider.GetCurrent(cityName);
-            _city = _jsonProcessorToGeocoding.Process(locationData);
+            _city = await _jsonProcessorToGeocoding.Process(locationData);
             _dbContext.UserCities.Add(new UserCity { UserId = currentUser.Id, CityId = _city.Id });
         }
 
