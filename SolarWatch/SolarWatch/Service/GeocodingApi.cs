@@ -1,12 +1,13 @@
 using System.Net;
+using SolarWatch.Controllers;
 
 namespace SolarWatch.Service;
 
 public class GeocodingApi : IGeocodingDataProvider
 {
-    private readonly ILogger<GeocodingApi> _logger;
+    private readonly ILogger<SolarWatchController> _logger;
 
-    public GeocodingApi(ILogger<GeocodingApi> logger)
+    public GeocodingApi(ILogger<SolarWatchController> logger)
     {
         _logger = logger;
     }

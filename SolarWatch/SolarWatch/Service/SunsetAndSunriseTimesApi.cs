@@ -1,4 +1,5 @@
 using System.Net;
+using SolarWatch.Controllers;
 using SolarWatch.Model;
 using SolarWatch.Modell;
 
@@ -7,9 +8,9 @@ namespace SolarWatch.Service;
 public class SunsetAndSunriseTimesApi : ISolarWatchDataProvider
 {
 
-    private readonly ILogger<SunsetAndSunriseTimesApi> _logger;
+    private readonly ILogger<SolarWatchController> _logger;
 
-    public SunsetAndSunriseTimesApi(ILogger<SunsetAndSunriseTimesApi> logger)
+    public SunsetAndSunriseTimesApi(ILogger<SolarWatchController> logger)
     {
         _logger = logger;
     }
