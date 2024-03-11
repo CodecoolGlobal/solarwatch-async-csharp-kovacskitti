@@ -47,13 +47,13 @@ public class SolarWatchController : ControllerBase
             if (resultByLocation == null)
             {
                 var locationData = await _geocodingDataProvider.GetCurrent(location);
-                _city = _jsonProcessorToGeocoding.Process(locationData);
+                _city = await _jsonProcessorToGeocoding.Process(locationData);
                 try
                 {
                     var date = currentDate.ToString("yyyy-MM-dd");
                     var solarWatchData = await _solarWatchDataProvider.GetCurrent(_city, date);
                     var result = _jsonProcessorToSolarWatch.Process(solarWatchData, date, _city);
-                    return Ok(result);
+                    return Ok(result);    
                 }
                 catch (Exception e)
                 {
