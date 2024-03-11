@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolarWatch", "SolarWatch\SolarWatch.csproj", "{1967BB0E-287E-4FD9-A249-33D8E5C2A358}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolarWatchTest", "SolarWatchTest\SolarWatchTest.csproj", "{D342E919-36DD-4625-ABEF-97F013DAB1CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{1967BB0E-287E-4FD9-A249-33D8E5C2A358}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1967BB0E-287E-4FD9-A249-33D8E5C2A358}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1967BB0E-287E-4FD9-A249-33D8E5C2A358}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D342E919-36DD-4625-ABEF-97F013DAB1CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D342E919-36DD-4625-ABEF-97F013DAB1CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D342E919-36DD-4625-ABEF-97F013DAB1CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D342E919-36DD-4625-ABEF-97F013DAB1CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
